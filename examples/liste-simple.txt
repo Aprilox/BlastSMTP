@@ -1,0 +1,11 @@
+# Liste au format texte : une adresse par ligne.
+# Les lignes vides et celles commençant par # sont ignorées.
+# Seules {{email}}, {{emailuser}} et {{emaildomain}} sont disponibles avec ce
+# format - passez au CSV pour disposer de colonnes personnalisées.
+
+amelie.durand@exemple.fr
+bob.martin@exemple.fr
+
+# La forme « Nom <adresse> » est reconnue et alimente {{name}}.
+Chloé Petit <chloe.petit@exemple.fr>
+David Moreau <david.moreau@exemple.fr>

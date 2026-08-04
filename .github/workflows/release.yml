@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache: true
+
+      - name: Test before releasing
+        run: go test ./... -count=1
+
+      - name: Build every target
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          mkdir -p dist
+          for target in windows/amd64 windows/arm64 linux/amd64 linux/arm64 darwin/amd64 darwin/arm64; do
+            GOOS="${target%/*}"; GOARCH="${target#*/}"
+            name="blastsmtp-${VERSION}-${GOOS}-${GOARCH}"
+            out="dist/${name}"
+            [ "$GOOS" = "windows" ] && out="${out}.exe"
+            echo "building ${out}"
+            GOOS="$GOOS" GOARCH="$GOARCH" CGO_ENABLED=0 \
+              go build -trimpath -ldflags "-s -w -X main.version=${VERSION}" -o "$out" .
+            if [ "$GOOS" = "windows" ]; then
+              (cd dist && zip -q "${name}.zip" "$(basename "$out")" && rm "$(basename "$out")")
+            else
+              (cd dist && tar -czf "${name}.tar.gz" "$(basename "$out")" && rm "$(basename "$out")")
+            fi
+          done
+          (cd dist && sha256sum * > checksums.txt)
+          ls -la dist
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

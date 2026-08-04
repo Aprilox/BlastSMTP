@@ -1,0 +1,347 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>BlastSMTP</title>
+<link rel="stylesheet" href="/app.css" />
+<!-- Web fonts are a progressive enhancement, never a dependency: loaded with
+     media="print" so they cannot block the first paint, then promoted once
+     downloaded. Offline, the fallback stacks in app.css take over silently. -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" media="print" onload="this.media='all';this.onload=null"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" />
+<script>window.BLAST_TOKEN = "__BLAST_TOKEN__";</script>
+
+<div class="shell">
+  <!-- ------------------------------------------- top bar -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+          <path d="M4 8h9M4 12h14M4 16h7" />
+        </svg>
+      </div>
+      <div class="brand-name">BLAST<em>SMTP</em></div>
+      <span class="chip" id="version-chip">v1.0</span>
+    </div>
+
+    <div class="topbar-spacer"></div>
+
+    <div class="status-pill hide-sm" id="pill-list"><span class="dot"></span><span>-</span></div>
+    <div class="status-pill hide-sm" id="pill-smtp"><span class="dot"></span><span>-</span></div>
+
+    <div class="segmented lang" id="lang-seg">
+      <button data-lang="fr" type="button">FR</button><button data-lang="en" type="button">EN</button>
+    </div>
+    <button class="btn sm ghost" id="btn-save-config" data-i18n="btn.saveConfig">Sauvegarder</button>
+  </header>
+
+  <!-- ------------------------------------------- rail -->
+  <nav class="rail">
+    <div class="rail-label" data-i18n="rail.sequence">Séquence</div>
+    <button class="step active" data-panel="smtp" data-ok="false">
+      <span class="num">01</span><span class="name" data-i18n="step.smtp">Relais SMTP</span><span class="tick"></span>
+    </button>
+    <button class="step" data-panel="list" data-ok="false">
+      <span class="num">02</span><span class="name" data-i18n="step.list">Destinataires</span><span class="tick"></span>
+    </button>
+    <button class="step" data-panel="compose" data-ok="false">
+      <span class="num">03</span><span class="name" data-i18n="step.compose">Message</span><span class="tick"></span>
+    </button>
+    <button class="step" data-panel="send" data-ok="false">
+      <span class="num">04</span><span class="name" data-i18n="step.send">Lancement</span><span class="tick"></span>
+    </button>
+    <div class="rail-foot">
+      <div data-i18n="rail.config">CONFIG</div>
+      <div id="config-path">-</div>
+    </div>
+  </nav>
+
+  <!-- ------------------------------------------- main -->
+  <main class="main">
+
+    <!-- ================================== 01 SMTP -->
+    <section class="panel active" id="panel-smtp">
+      <div class="panel-head">
+        <h1 data-i18n="smtp.title">Relais SMTP</h1>
+        <p data-i18n="smtp.lead"></p>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="card.profile">Profil</h2>
+        <div class="row" style="margin-bottom:14px">
+          <select id="profile-select" class="grow"><option value="" data-i18n="profile.new"></option></select>
+          <input type="text" id="profile-name" class="grow" data-i18n-ph="profile.name.ph" />
+          <button class="btn sm" id="btn-profile-save" data-i18n="btn.record"></button>
+          <button class="btn sm danger" id="btn-profile-delete" data-i18n="btn.delete"></button>
+        </div>
+        <div class="presets" id="presets"></div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="card.connection">Connexion</h2>
+        <div class="grid c4">
+          <div class="field span2"><label for="smtp-host" data-i18n="f.host"></label><input type="text" id="smtp-host" placeholder="smtp.exemple.com" /></div>
+          <div class="field"><label for="smtp-port" data-i18n="f.port"></label><input type="number" id="smtp-port" value="587" inputmode="numeric" /></div>
+          <div class="field"><label data-i18n="f.encryption"></label>
+            <div class="segmented" id="enc-seg">
+              <button type="button" data-v="none" data-i18n="enc.none"></button><button type="button" data-v="starttls" class="on">STARTTLS</button><button type="button" data-v="ssl">SSL/TLS</button>
+            </div>
+          </div>
+          <div class="field span2"><label for="smtp-user" data-i18n="f.user"></label><input type="text" id="smtp-user" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="contact@exemple.com" /></div>
+          <div class="field span2"><label for="smtp-pass" data-i18n="f.pass"></label>
+            <div class="input-row">
+              <input type="password" id="smtp-pass" autocomplete="new-password" />
+              <button class="btn sm ghost" id="btn-reveal" data-i18n-title="btn.reveal">👁</button>
+            </div>
+          </div>
+        </div>
+        <label class="check" style="margin-top:14px">
+          <input type="checkbox" id="save-passwords" />
+          <span data-i18n="savepass.label"></span>
+        </label>
+        <div class="hint" style="margin-top:6px" data-i18n-html="savepass.hint"></div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="card.sender">Expéditeur</h2>
+        <div class="grid c3">
+          <div class="field"><label for="from-name" data-i18n="f.fromName"></label><input type="text" id="from-name" placeholder="Studio Exemple" /></div>
+          <div class="field"><label for="from-email" data-i18n="f.fromEmail"></label><input type="text" id="from-email" autocapitalize="off" spellcheck="false" placeholder="contact@exemple.com" /></div>
+          <div class="field"><label for="reply-to" data-i18n="f.replyTo"></label><input type="text" id="reply-to" autocapitalize="off" spellcheck="false" data-i18n-ph="ph.optional" /></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="card.advanced">Options avancées</h2>
+        <details>
+          <summary data-i18n="adv.summary"></summary>
+          <div class="grid c4">
+            <div class="field"><label for="auth-method" data-i18n="f.authMethod"></label>
+              <select id="auth-method">
+                <option value="auto" data-i18n="auth.auto"></option><option value="plain">PLAIN</option>
+                <option value="login">LOGIN</option><option value="cram-md5">CRAM-MD5</option>
+                <option value="none" data-i18n="auth.none"></option>
+              </select>
+            </div>
+            <div class="field"><label for="helo" data-i18n="f.helo"></label><input type="text" id="helo" placeholder="auto" /></div>
+            <div class="field"><label for="timeout" data-i18n="f.timeout"></label><input type="number" id="timeout" value="30" inputmode="numeric" /></div>
+            <div class="field checks"><label class="check"><input type="checkbox" id="skip-verify" /> <span data-i18n="chk.skipVerify"></span></label>
+              <label class="check"><input type="checkbox" id="insecure-auth" /> <span data-i18n="chk.insecureAuth"></span></label>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <div class="row">
+        <button class="btn signal" id="btn-test" data-i18n="btn.test"></button>
+        <span class="hint" data-i18n="test.hint"></span>
+      </div>
+      <div id="probe"></div>
+    </section>
+
+    <!-- ================================== 02 LISTE -->
+    <section class="panel" id="panel-list">
+      <div class="panel-head">
+        <h1 data-i18n="list.title">Destinataires</h1>
+        <p data-i18n="list.lead"></p>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="card.import">Import</h2>
+        <div class="drop" id="drop-list">
+          <div class="big" data-i18n="drop.list.big"></div>
+          <div class="small" data-i18n="drop.list.small"></div>
+        </div>
+        <input type="file" id="file-list" accept=".csv,.tsv,.txt,text/csv,text/plain" hidden />
+        <div class="row" style="margin-top:12px">
+          <span class="hint" id="list-filename"></span>
+          <div class="spacer"></div>
+          <button class="btn sm danger" id="btn-clear-list" data-i18n="btn.clearList"></button>
+        </div>
+      </div>
+
+      <div id="list-results" style="display:none">
+        <div class="tiles" style="margin-bottom:16px">
+          <div class="tile signal"><div class="k" data-i18n="tile.valid"></div><div class="v" id="t-valid">0</div></div>
+          <div class="tile amber"><div class="k" data-i18n="tile.dupes"></div><div class="v" id="t-dupes">0</div></div>
+          <div class="tile red"><div class="k" data-i18n="tile.rejected"></div><div class="v" id="t-rejected">0</div></div>
+          <div class="tile blue"><div class="k" data-i18n="tile.columns"></div><div class="v" id="t-columns">0</div></div>
+        </div>
+
+        <div class="card">
+          <h2 data-i18n="card.availableVars"></h2>
+          <div class="row" id="list-columns"></div>
+          <div class="hint" style="margin-top:10px" data-i18n="list.varHint"></div>
+        </div>
+
+        <div class="card">
+          <h2><span data-i18n="card.preview"></span> <span class="muted soft" id="preview-count"></span></h2>
+          <div class="table-wrap"><table id="list-table"><thead></thead><tbody></tbody></table></div>
+        </div>
+
+        <div class="card" id="rejected-card" style="display:none">
+          <h2 data-i18n="card.rejectedRows"></h2>
+          <div class="table-wrap" style="max-height:200px">
+            <table id="rejected-table">
+              <thead><tr><th data-i18n="th.line"></th><th data-i18n="th.content"></th><th data-i18n="th.reason"></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================== 03 MESSAGE -->
+    <section class="panel" id="panel-compose">
+      <div class="panel-head">
+        <h1 data-i18n="compose.title">Message</h1>
+        <p data-i18n-html="compose.lead"></p>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="card.subject">Objet</h2>
+        <input type="text" id="subject" data-i18n-ph="subject.ph" />
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="card.variables">Variables</h2>
+        <div class="row" id="var-palette"></div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="card.body">Corps</h2>
+        <div class="tabs">
+          <button class="tab on" data-tab="html" data-i18n="tab.html"></button>
+          <button class="tab" data-tab="text" data-i18n="tab.text"></button>
+          <button class="tab" data-tab="preview" data-i18n="tab.preview"></button>
+        </div>
+
+        <div class="tabpane on" data-pane="html">
+          <textarea id="body-html" class="editor" spellcheck="false" data-i18n-ph="html.ph"></textarea>
+          <div class="hint" style="margin-top:8px" data-i18n="html.hint"></div>
+        </div>
+
+        <div class="tabpane" data-pane="text">
+          <textarea id="body-text" class="editor" spellcheck="false" data-i18n-ph="text.ph"></textarea>
+          <div class="row" style="margin-top:8px">
+            <button class="btn sm" id="btn-strip" data-i18n="btn.strip"></button>
+            <span class="hint" data-i18n="strip.hint"></span>
+          </div>
+        </div>
+
+        <div class="tabpane" data-pane="preview">
+          <div class="preview-bar">
+            <div class="preview-nav">
+              <button class="btn sm" id="prev-back">◀</button>
+              <span id="prev-pos" class="mono">1 / 1</span>
+              <button class="btn sm" id="prev-next">▶</button>
+            </div>
+            <button class="btn sm" id="btn-refresh-preview" data-i18n="btn.refreshPreview"></button>
+            <div class="spacer"></div>
+            <input type="text" id="test-to" class="grow" autocapitalize="off" spellcheck="false" data-i18n-ph="testTo.ph" />
+            <button class="btn sm signal" id="btn-send-test" data-i18n="btn.sendTest"></button>
+          </div>
+          <div class="preview-meta">
+            <div><span class="k" data-i18n="prev.to"></span><span id="prev-to">-</span></div>
+            <div><span class="k" data-i18n="prev.subject"></span><span id="prev-subject">-</span></div>
+          </div>
+          <iframe class="preview-frame" id="prev-frame" sandbox=""></iframe>
+          <div id="prev-warn"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="card.attachments">Pièces jointes</h2>
+        <div class="drop compact" id="drop-files">
+          <div class="big" data-i18n="drop.files.big"></div>
+          <div class="small" data-i18n="drop.files.small"></div>
+        </div>
+        <input type="file" id="file-attach" multiple hidden />
+        <div id="attach-list"></div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="card.headers">En-têtes</h2>
+        <details>
+          <summary data-i18n="headers.summary"></summary>
+          <div class="field" style="margin-bottom:14px">
+            <label for="unsubscribe" data-i18n="f.unsubscribe"></label>
+            <input type="text" id="unsubscribe" autocapitalize="off" spellcheck="false" data-i18n-ph="unsub.ph" />
+            <span class="hint" data-i18n-html="unsub.hint"></span>
+          </div>
+          <div id="headers-rows"></div>
+          <button class="btn sm" id="btn-add-header" data-i18n="btn.addHeader"></button>
+        </details>
+      </div>
+    </section>
+
+    <!-- ================================== 04 ENVOI -->
+    <section class="panel" id="panel-send">
+      <div class="panel-head">
+        <h1 data-i18n="send.title">Lancement</h1>
+        <p data-i18n="send.lead"></p>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="card.pacing">Cadence</h2>
+        <div class="grid c4">
+          <div class="field"><label for="workers" data-i18n="f.workers"></label><input type="number" id="workers" value="2" min="1" max="32" inputmode="numeric" /></div>
+          <div class="field"><label for="rate" data-i18n="f.rate"></label><input type="number" id="rate" value="60" min="0" inputmode="numeric" /><span class="hint" data-i18n="f.rate.hint"></span></div>
+          <div class="field"><label for="batch" data-i18n="f.batch"></label><input type="number" id="batch" value="50" min="0" inputmode="numeric" /></div>
+          <div class="field"><label for="batch-pause" data-i18n="f.batchPause"></label><input type="number" id="batch-pause" value="30" min="0" inputmode="numeric" /></div>
+          <div class="field"><label for="retries" data-i18n="f.retries"></label><input type="number" id="retries" value="1" min="0" max="5" inputmode="numeric" /></div>
+          <div class="field"><label for="reconnect" data-i18n="f.reconnect"></label><input type="number" id="reconnect" value="100" min="0" inputmode="numeric" /></div>
+          <div class="field"><label for="index-start" data-i18n="f.indexStart"></label><input type="number" id="index-start" value="1" inputmode="numeric" /></div>
+          <div class="field checks"><label class="check"><input type="checkbox" id="stop-on-error" /> <span data-i18n-html="chk.stopOnError"></span></label></div>
+        </div>
+        <div class="warn info" id="estimate"></div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="card.preflight">Contrôle avant vol</h2>
+        <div class="checklist" id="checklist"></div>
+      </div>
+
+      <div class="launch">
+        <div class="eyebrow" data-i18n="launch.eyebrow"></div>
+        <div class="row center" style="margin-bottom:14px">
+          <label class="check"><input type="checkbox" id="dry-run" /> <span data-i18n="chk.dryRun"></span></label>
+        </div>
+        <button class="btn signal xl" id="btn-launch" data-i18n="btn.launch"></button>
+      </div>
+
+      <div class="card" id="dashboard" style="display:none;margin-top:16px">
+        <h2 data-i18n="card.telemetry">Télémétrie</h2>
+        <div class="tiles">
+          <div class="tile signal"><div class="k" data-i18n="tile.sent"></div><div class="v" id="d-sent">0</div></div>
+          <div class="tile red"><div class="k" data-i18n="tile.failed"></div><div class="v" id="d-failed">0</div></div>
+          <div class="tile"><div class="k" data-i18n="tile.pending"></div><div class="v" id="d-pending">0</div></div>
+          <div class="tile blue"><div class="k" data-i18n="tile.rate"></div><div class="v" id="d-rate">0</div></div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress" id="progress"><div class="bar" id="progress-bar"></div><div class="pct" id="progress-pct">0%</div></div>
+        </div>
+        <div class="meter-row">
+          <span><span data-i18n="meter.state"></span> <b id="d-state">-</b></span>
+          <span><span data-i18n="meter.elapsed"></span> <b id="d-elapsed">00:00</b></span>
+          <span><span data-i18n="meter.eta"></span><b id="d-eta">-</b></span>
+          <span><span data-i18n="meter.retries"></span> <b id="d-retries">0</b></span>
+        </div>
+
+        <div class="row" style="margin:16px 0">
+          <button class="btn" id="btn-pause" data-i18n="btn.pause"></button>
+          <button class="btn" id="btn-resume" disabled data-i18n="btn.resume"></button>
+          <button class="btn danger" id="btn-stop" data-i18n="btn.stop"></button>
+          <div class="spacer"></div>
+          <button class="btn sm" id="btn-report" data-i18n="btn.report"></button>
+        </div>
+
+        <div class="log" id="log"><div class="log-empty" data-i18n="log.waiting"></div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toasts" id="toasts"></div>
+<script src="/i18n.js"></script>
+<script src="/app.js"></script>

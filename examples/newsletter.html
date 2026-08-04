@@ -1,0 +1,59 @@
+<!-- Gabarit d'exemple pour BlastSMTP.
+     À coller dans l'onglet Message > HTML. Les variables correspondent aux
+     colonnes de examples/contacts.csv.
+
+     Objet suggéré :
+     Commande n°{{index:1000}} confirmée - {{societe|votre commande}}
+
+     Rappel de mise en forme email : tableaux plutôt que flexbox, styles en
+     ligne plutôt que feuille externe, largeur fixe à 600 px. Les clients de
+     messagerie sont restés en 2003. -->
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f2;padding:32px 0;font-family:Helvetica,Arial,sans-serif">
+  <tr>
+    <td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border:1px solid #e2e2dd">
+
+        <tr>
+          <td style="background:#111114;padding:22px 28px">
+            <span style="color:#c9f24d;font-size:18px;font-weight:bold;letter-spacing:-0.5px">VOTRE MARQUE</span>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:32px 28px 8px">
+            <p style="margin:0 0 18px;font-size:16px;color:#111114">
+              {{spin:Bonjour;Bonjour à vous;Bonsoir}} {{capitalize:prenom|cher client}},
+            </p>
+            <p style="margin:0 0 18px;font-size:15px;line-height:1.6;color:#3a3a40">
+              Votre commande <strong>#{{index:1000}}</strong> du {{date}} est en cours de préparation
+              pour <strong>{{societe|votre compte}}</strong>, livraison sur {{ville|votre adresse}}.
+            </p>
+            <p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#3a3a40">
+              Formule retenue : <strong>{{offre|Standard}}</strong><br />
+              Code de suivi : <code style="background:#f4f4f2;padding:2px 6px">{{randstr:6}}-{{randnum:4}}</code>
+            </p>
+          </td>
+        </tr>
+
+        <tr>
+          <td align="center" style="padding:0 28px 32px">
+            <a href="https://exemple.fr/suivi?c={{index:1000}}&amp;e={{email}}"
+               style="display:inline-block;background:#111114;color:#c9f24d;text-decoration:none;padding:14px 30px;font-weight:bold;font-size:14px">
+              Suivre ma commande
+            </a>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="border-top:1px solid #e2e2dd;padding:20px 28px;font-size:12px;color:#8a8a90;line-height:1.6">
+            Message envoyé à {{email}} - destinataire {{index}} sur {{count}}.<br />
+            <a href="https://exemple.fr/desinscription?e={{email}}" style="color:#8a8a90">Se désinscrire</a>
+            · Votre Marque, 1 rue de l'Exemple, 69000 Lyon
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>

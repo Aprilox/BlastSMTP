@@ -1,0 +1,50 @@
+# ---------------------------------------------------------------- binaires
+blastsmtp
+blastsmtp.exe
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Artefacts de compilation croisee et de release
+/dist/
+/build/
+*.zip
+*.tar.gz
+checksums.txt
+
+# ------------------------------------------------------------------- tests
+*.test
+*.out
+coverage.txt
+coverage.html
+/testdata/tmp/
+
+# ------------------------------------------------- donnees locales sensibles
+# Peut contenir des identifiants SMTP en clair si la sauvegarde est activee.
+config.json
+*.config.json
+
+# Listes de destinataires : donnees personnelles, jamais dans le depot.
+/listes/
+/lists/
+*.local.csv
+*.local.txt
+
+# Rapports de campagne exportes : contiennent des adresses reelles.
+blastsmtp-rapport-*.csv
+blastsmtp-report-*.csv
+
+# ------------------------------------------------------------------- outils
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Go
+go.work
+go.work.sum
+vendor/
