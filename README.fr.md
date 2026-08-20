@@ -64,7 +64,7 @@ Récupérez l'exécutable de votre plateforme dans [Releases](../../releases) et
 ### Avec Go
 
 ```bash
-go install github.com/aprilox/blastsmtp@latest
+go install github.com/aprilox/blastsmtp@v1.0.0
 ```
 
 ### Depuis les sources

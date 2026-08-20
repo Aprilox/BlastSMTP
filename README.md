@@ -64,7 +64,7 @@ Grab the executable for your platform from [Releases](../../releases) and run it
 ### With Go
 
 ```bash
-go install github.com/aprilox/blastsmtp@latest
+go install github.com/aprilox/blastsmtp@v1.0.0
 ```
 
 ### From source
